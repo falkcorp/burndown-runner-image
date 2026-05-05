@@ -34,7 +34,7 @@ permissions:
 jobs:
   release:
     name: Build + push image
-    uses: jdfalk/ghcommon/.github/workflows/reusable-release.yml@ed36e5bb1774a3593d741555a7584ca260a18720 # fix GH_TOKEN + env-bridge guard
+    uses: jdfalk/ghcommon/.github/workflows/reusable-release.yml@1e106b5c7bc2e80beb0c6019e8ac263d41f2ed5f # fix GH_TOKEN + env-bridge guard
     with:
       release-type: 'auto'
       prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') && inputs.stable != 'true' }}
