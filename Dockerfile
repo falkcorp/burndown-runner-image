@@ -1,5 +1,5 @@
 # file: Dockerfile
-# version: 1.3.0
+# version: 1.4.0
 # guid: f0c1ker0-0000-4000-8000-000000000001
 #
 # Extends a GitHub Actions-style Ubuntu base with the project's runtime
@@ -57,6 +57,17 @@ RUN set -eux; \
 ENV PATH=/usr/local/go/bin:/root/go/bin:$PATH \
     GOPATH=/root/go
 
+# --- Burndown bot binary + scripts (pre-baked; CI jobs skip clone+build) ---
+# overnight-burndown is public so no token needed. Pin via BURNDOWN_REF.
+ARG BURNDOWN_REF=main
+RUN git clone --depth 1 --branch "${BURNDOWN_REF}" \
+        https://github.com/jdfalk/overnight-burndown.git /tmp/burndown-src \
+ && cd /tmp/burndown-src \
+ && go build -o /usr/local/bin/burndown ./cmd/burndown \
+ && mkdir -p /usr/local/lib/burndown/scripts \
+ && cp scripts/*.py /usr/local/lib/burndown/scripts/ \
+ && rm -rf /tmp/burndown-src /root/go/pkg/mod
+
 # --- Build deps (no apt-installed Python — uv manages it below) ---
 # apt's cargo/rustc on 22.04 are too old (~1.66) and can't parse modern
 # Cargo.toml manifests; Rust comes from rustup below.
@@ -106,6 +117,8 @@ RUN set -eux; \
     python3 --version >/dev/null; \
     python3 -c 'import yaml; print("pyyaml", yaml.__version__)'; \
     safe-ai-util --version >/dev/null; \
-    safe-ai-util-mcp --help >/dev/null 2>&1 || true
+    safe-ai-util-mcp --help >/dev/null 2>&1 || true; \
+    [ -x /usr/local/bin/burndown ]; \
+    [ -f /usr/local/lib/burndown/scripts/render-ci-config.py ]
 
 WORKDIR /workspace
