@@ -1,5 +1,5 @@
 # file: Dockerfile
-# version: 1.7.0
+# version: 1.8.0
 # guid: f0c1ker0-0000-4000-8000-000000000001
 #
 # Extends a GitHub Actions-style Ubuntu base with the project's runtime
@@ -110,6 +110,12 @@ ARG SAFE_AI_UTIL_REF=main
 RUN cargo install --git https://github.com/jdfalk/safe-ai-util.git --branch ${SAFE_AI_UTIL_REF} --root /usr/local
 ENV COPILOT_AGENT_UTIL_BIN=/usr/local/bin/safe-ai-util
 
+# Symlink safe-ai-util-mcp into /usr/local/bin so it is reachable regardless
+# of whether the caller inherits the Docker ENV PATH. The venv binary lives at
+# /opt/venv/bin/safe-ai-util-mcp; GitHub Actions does not always propagate
+# Docker ENV into subprocess PATH when the burndown binary spawns MCP servers.
+RUN ln -sf /opt/venv/bin/safe-ai-util-mcp /usr/local/bin/safe-ai-util-mcp
+
 # Sanity check — fail the build if any of the load-bearing tools is missing.
 RUN set -eux; \
     gh --version >/dev/null; \
@@ -117,7 +123,7 @@ RUN set -eux; \
     python3 --version >/dev/null; \
     python3 -c 'import yaml; print("pyyaml", yaml.__version__)'; \
     safe-ai-util --version >/dev/null; \
-    safe-ai-util-mcp --help >/dev/null 2>&1 || true; \
+    safe-ai-util-mcp --help >/dev/null 2>&1; \
     [ -x /usr/local/bin/burndown ]; \
     [ -f /usr/local/lib/burndown/scripts/render-ci-config.py ]
 
