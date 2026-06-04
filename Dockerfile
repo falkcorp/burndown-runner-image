@@ -99,7 +99,8 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
  && uv venv --python ${PYTHON_VERSION} ${VIRTUAL_ENV} \
  && uv pip install --python ${VIRTUAL_ENV}/bin/python \
         pyyaml \
-        "git+https://github.com/jdfalk/safe-ai-util-mcp@main"
+        "git+https://github.com/jdfalk/safe-ai-util-mcp@main" \
+ && ln -sf /opt/venv/bin/safe-ai-util-mcp /usr/local/bin/safe-ai-util-mcp
 
 # --- safe-ai-util Rust binary ---
 # safe-ai-util-mcp's stdio server shells out to the Rust `safe-ai-util`
