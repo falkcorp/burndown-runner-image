@@ -1,5 +1,5 @@
 # file: Dockerfile
-# version: 1.7.0
+# version: 1.8.0
 # guid: f0c1ker0-0000-4000-8000-000000000001
 #
 # Extends a GitHub Actions-style Ubuntu base with the project's runtime
@@ -99,7 +99,8 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
  && uv venv --python ${PYTHON_VERSION} ${VIRTUAL_ENV} \
  && uv pip install --python ${VIRTUAL_ENV}/bin/python \
         pyyaml \
-        "git+https://github.com/jdfalk/safe-ai-util-mcp@main"
+        "git+https://github.com/jdfalk/safe-ai-util-mcp@main" \
+ && ln -sf /opt/venv/bin/safe-ai-util-mcp /usr/local/bin/safe-ai-util-mcp
 
 # --- safe-ai-util Rust binary ---
 # safe-ai-util-mcp's stdio server shells out to the Rust `safe-ai-util`
@@ -117,7 +118,7 @@ RUN set -eux; \
     python3 --version >/dev/null; \
     python3 -c 'import yaml; print("pyyaml", yaml.__version__)'; \
     safe-ai-util --version >/dev/null; \
-    safe-ai-util-mcp --help >/dev/null 2>&1 || true; \
+    safe-ai-util-mcp --help >/dev/null 2>&1; \
     [ -x /usr/local/bin/burndown ]; \
     [ -f /usr/local/lib/burndown/scripts/render-ci-config.py ]
 
