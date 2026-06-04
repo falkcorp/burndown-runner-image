@@ -1,5 +1,5 @@
 # file: Dockerfile
-# version: 1.8.0
+# version: 1.9.0
 # guid: f0c1ker0-0000-4000-8000-000000000001
 #
 # Extends a GitHub Actions-style Ubuntu base with the project's runtime
@@ -99,8 +99,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
  && uv venv --python ${PYTHON_VERSION} ${VIRTUAL_ENV} \
  && uv pip install --python ${VIRTUAL_ENV}/bin/python \
         pyyaml \
-        "git+https://github.com/jdfalk/safe-ai-util-mcp@main" \
- && ln -sf /opt/venv/bin/safe-ai-util-mcp /usr/local/bin/safe-ai-util-mcp
+        "git+https://github.com/jdfalk/safe-ai-util-mcp@main"
 
 # --- safe-ai-util Rust binary ---
 # safe-ai-util-mcp's stdio server shells out to the Rust `safe-ai-util`
@@ -111,11 +110,14 @@ ARG SAFE_AI_UTIL_REF=main
 RUN cargo install --git https://github.com/jdfalk/safe-ai-util.git --branch ${SAFE_AI_UTIL_REF} --root /usr/local
 ENV COPILOT_AGENT_UTIL_BIN=/usr/local/bin/safe-ai-util
 
-# Symlink safe-ai-util-mcp into /usr/local/bin so it is reachable regardless
-# of whether the caller inherits the Docker ENV PATH. The venv binary lives at
-# /opt/venv/bin/safe-ai-util-mcp; GitHub Actions does not always propagate
-# Docker ENV into subprocess PATH when the burndown binary spawns MCP servers.
-RUN ln -sf /opt/venv/bin/safe-ai-util-mcp /usr/local/bin/safe-ai-util-mcp
+# Write a thin shell wrapper for safe-ai-util-mcp into /usr/local/bin.
+# A symlink to /opt/venv/bin/safe-ai-util-mcp fails because the console-script
+# shebang (#!/opt/venv/bin/pythonX.Y) can't resolve through the symlink chain
+# inside Docker (exit 127). A wrapper that calls the venv Python explicitly
+# is robust regardless of PATH propagation.
+RUN printf '#!/bin/sh\nexec /opt/venv/bin/python -c "from safe_ai_util_mcp.server import main; main()"\n' \
+        > /usr/local/bin/safe-ai-util-mcp \
+ && chmod +x /usr/local/bin/safe-ai-util-mcp
 
 # Sanity check — fail the build if any of the load-bearing tools is missing.
 RUN set -eux; \
@@ -124,7 +126,8 @@ RUN set -eux; \
     python3 --version >/dev/null; \
     python3 -c 'import yaml; print("pyyaml", yaml.__version__)'; \
     safe-ai-util --version >/dev/null; \
-    safe-ai-util-mcp --help >/dev/null 2>&1; \
+    [ -x /usr/local/bin/safe-ai-util-mcp ]; \
+    /opt/venv/bin/python -c "from safe_ai_util_mcp.server import main" >/dev/null; \
     [ -x /usr/local/bin/burndown ]; \
     [ -f /usr/local/lib/burndown/scripts/render-ci-config.py ]
 
