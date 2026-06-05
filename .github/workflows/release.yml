@@ -34,7 +34,7 @@ permissions:
 jobs:
   release:
     name: Build + push image
-    uses: falkcorp/github-common/.github/workflows/reusable-release.yml@1e106b5c7bc2e80beb0c6019e8ac263d41f2ed5f # fix GH_TOKEN + env-bridge guard
+    uses: falkcorp/github-common/.github/workflows/reusable-release.yml@483f3afeb0064ccbe6ad565044042ba6faee1f96 # v2.14.0
     with:
       release-type: 'auto'
       prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') && inputs.stable != 'true' }}
