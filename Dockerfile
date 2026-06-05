@@ -1,5 +1,5 @@
 # file: Dockerfile
-# version: 1.9.0
+# version: 1.9.1
 # guid: f0c1ker0-0000-4000-8000-000000000001
 #
 # Extends a GitHub Actions-style Ubuntu base with the project's runtime
@@ -13,7 +13,7 @@ FROM ${IMAGE_BASE}
 # Provenance labels — picked up by docker/metadata-action and by `gh
 # attestation verify` when consumers want to confirm where the image came
 # from. Override at build time with --label or via metadata-action.
-LABEL org.opencontainers.image.source="https://github.com/jdfalk/burndown-runner-image" \
+LABEL org.opencontainers.image.source="https://github.com/falkcorp/burndown-runner-image" \
       org.opencontainers.image.title="burndown-runner-image" \
       org.opencontainers.image.description="Pre-baked GHA-style runner image for the overnight-burndown bot (gh CLI, Go, Python, safe-ai-util, safe-ai-util-mcp)." \
       org.opencontainers.image.licenses="MIT"
@@ -61,7 +61,7 @@ ENV PATH=/usr/local/go/bin:/root/go/bin:$PATH \
 # overnight-burndown is public so no token needed. Pin via BURNDOWN_REF.
 ARG BURNDOWN_REF=main
 RUN git clone --depth 1 --branch "${BURNDOWN_REF}" \
-        https://github.com/jdfalk/overnight-burndown.git /tmp/burndown-src \
+        https://github.com/falkcorp/overnight-burndown.git /tmp/burndown-src \
  && cd /tmp/burndown-src \
  && go build -o /usr/local/bin/burndown ./cmd/burndown \
  && mkdir -p /usr/local/lib/burndown/scripts \
@@ -99,7 +99,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
  && uv venv --python ${PYTHON_VERSION} ${VIRTUAL_ENV} \
  && uv pip install --python ${VIRTUAL_ENV}/bin/python \
         pyyaml \
-        "git+https://github.com/jdfalk/safe-ai-util-mcp@main"
+        "git+https://github.com/falkcorp/safe-ai-util-mcp@main"
 
 # --- safe-ai-util Rust binary ---
 # safe-ai-util-mcp's stdio server shells out to the Rust `safe-ai-util`
@@ -107,7 +107,7 @@ RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
 # ~3-5 min to image build but keeps us off any release-asset naming
 # scheme that may change.
 ARG SAFE_AI_UTIL_REF=main
-RUN cargo install --git https://github.com/jdfalk/safe-ai-util.git --branch ${SAFE_AI_UTIL_REF} --root /usr/local
+RUN cargo install --git https://github.com/falkcorp/safe-ai-util.git --branch ${SAFE_AI_UTIL_REF} --root /usr/local
 ENV COPILOT_AGENT_UTIL_BIN=/usr/local/bin/safe-ai-util
 
 # Write a thin shell wrapper for safe-ai-util-mcp into /usr/local/bin.
