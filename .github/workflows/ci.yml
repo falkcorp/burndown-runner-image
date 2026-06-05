@@ -2,7 +2,7 @@
 # version: 1.0.0
 # guid: c0c4ce11-0000-4000-8000-000000000001
 #
-# Thin caller of jdfalk/ghcommon/.github/workflows/reusable-ci.yml.
+# Thin caller of falkcorp/github-common/.github/workflows/reusable-ci.yml.
 # Repo-specific knobs live in .github/workflow-config.yaml. The action ref
 # below SHOULD be a pinned SHA in production — `@main` is the scaffold
 # default; the next CI run's pin-actions-to-hashes step will rewrite it.
@@ -31,5 +31,5 @@ permissions:
 jobs:
   ci:
     name: Run CI
-    uses: jdfalk/ghcommon/.github/workflows/reusable-ci.yml@1e106b5c7bc2e80beb0c6019e8ac263d41f2ed5f # main
+    uses: falkcorp/github-common/.github/workflows/reusable-ci.yml@1e106b5c7bc2e80beb0c6019e8ac263d41f2ed5f # main
     secrets: inherit
