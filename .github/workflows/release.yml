@@ -1,5 +1,5 @@
 # file: .github/workflows/release.yml
-# version: 2.4.0
+# version: 2.4.1
 # guid: f0c1ker0-0000-4000-8000-000000000003
 
 name: Build image
@@ -87,6 +87,7 @@ jobs:
           echo "Pushed: ${dst}"
 
       - name: Update reusable-burndown.yml in github-common
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.JF_CI_GH_PAT || secrets.GITHUB_TOKEN }}
           OB_TAG: ${{ steps.ob.outputs.tag }}
