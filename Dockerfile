@@ -1,5 +1,5 @@
 # file: Dockerfile
-# version: 1.9.1
+# version: 2.0.0
 # guid: f0c1ker0-0000-4000-8000-000000000001
 #
 # Extends a GitHub Actions-style Ubuntu base with the project's runtime
@@ -63,9 +63,11 @@ ARG BURNDOWN_REF=main
 RUN git clone --depth 1 --branch "${BURNDOWN_REF}" \
         https://github.com/falkcorp/overnight-burndown.git /tmp/burndown-src \
  && cd /tmp/burndown-src \
+ && BURNDOWN_SHA=$(git rev-parse HEAD) \
  && go build -o /usr/local/bin/burndown ./cmd/burndown \
  && mkdir -p /usr/local/lib/burndown/scripts \
  && cp scripts/*.py /usr/local/lib/burndown/scripts/ \
+ && echo "${BURNDOWN_SHA}" > /etc/burndown-runner-version \
  && rm -rf /tmp/burndown-src /root/go/pkg/mod
 
 # --- Build deps (no apt-installed Python — uv manages it below) ---
@@ -129,6 +131,13 @@ RUN set -eux; \
     [ -x /usr/local/bin/safe-ai-util-mcp ]; \
     /opt/venv/bin/python -c "from safe_ai_util_mcp.server import main" >/dev/null; \
     [ -x /usr/local/bin/burndown ]; \
-    [ -f /usr/local/lib/burndown/scripts/render-ci-config.py ]
+    [ -f /usr/local/lib/burndown/scripts/render-ci-config.py ]; \
+    [ -f /etc/burndown-runner-version ]
+
+# Thin entrypoint that logs the baked-in overnight-burndown commit on every
+# container start, then execs whatever CMD was passed (or the GHA runner).
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 WORKDIR /workspace
