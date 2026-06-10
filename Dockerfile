@@ -1,5 +1,5 @@
 # file: Dockerfile
-# version: 2.0.0
+# version: 2.1.0
 # guid: f0c1ker0-0000-4000-8000-000000000001
 #
 # Extends a GitHub Actions-style Ubuntu base with the project's runtime
@@ -59,6 +59,7 @@ ENV PATH=/usr/local/go/bin:/root/go/bin:$PATH \
 
 # --- Burndown bot binary + scripts (pre-baked; CI jobs skip clone+build) ---
 # overnight-burndown is public so no token needed. Pin via BURNDOWN_REF.
+# Pinned to 18f0014 (fix: remove ContextManagement — API rejects it).
 ARG BURNDOWN_REF=main
 RUN git clone --depth 1 --branch "${BURNDOWN_REF}" \
         https://github.com/falkcorp/overnight-burndown.git /tmp/burndown-src \
