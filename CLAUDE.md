@@ -1,12 +1,22 @@
 <!-- file: CLAUDE.md -->
-<!-- version: 0.1.0 -->
+<!-- version: 0.2.0 -->
 <!-- guid: c1a4dec0-0000-4000-8000-000000000001 -->
+<!-- last-edited: 2026-06-13 -->
 
 # CLAUDE.md
 
 Entry point for AI agent instructions in **burndown-runner-image**.
 
 All detailed agent instructions live in `.github/`. This file is a pointer.
+
+## Coding Standards
+
+Org-wide coding standards are in the `.standards/` git submodule (cloned from `https://github.com/falkcarp/.github`).
+Always clone with `git clone --recurse-submodules` so these are available.
+
+Key files:
+- **File headers (MANDATORY):** `.standards/instructions/file-headers.md`
+- **Commit format:** `.standards/instructions/commit-messages.md`
 
 ## Quick links
 
